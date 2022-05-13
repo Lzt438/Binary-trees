@@ -1,32 +1,118 @@
-# Prerequisites
-*.d
+#include<iostream>
+using namespace std;
+class BiTNode{
+	public:
+		int data;  //数据值 
+		BiTNode *lchild, *rchild;
+		friend class BiTree;
+};
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+class BiTree{
+	public:
+		int *m, *s;
+		int num, minweight;
+		string strtree;
+		char c;
+		BiTNode *root;
+		BiTree(int n, int *s1, int *s2);
+		~BiTree();
+		void CreateTree(BiTNode *&p, int *m, int *s, int n);
+		void CreateTree();
+		void PreOrder(BiTNode *p);
+};
 
-# Precompiled Headers
-*.gch
-*.pch
+BiTree::BiTree(int n, int *s1, int *s2)
+{
+	num = n;
+	minweight = 9999;
+	m = new int[num];
+	s = new int[num];
+	for(int i=0;i<num;i++)
+	{
+		m[i] = s1[i];
+		s[i] = s2[i];
+	}
+}
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+BiTree::~BiTree()
+{
+	delete [] m;
+	delete [] s;
+}
 
-# Fortran module files
-*.mod
-*.smod
+void BiTree::CreateTree(BiTNode *&p, int *m, int *s, int n)
+{
+	int i, j;
+	if(n)
+	{
+		int temp = m[n-1];
+		p = new BiTNode;
+		p->data = temp;
+		for(i = 0;i < n;i++)
+			if(s[i] == temp)
+				break;
+		int num1 = i;
+		int num2 = n - i - 1;
+		int a[num1], b[num2];
+		for(j = 0;j < n;j++)
+		{
+			if(j < i)
+				a[j] = s[j];
+			else
+				b[j-i-1] = s[j];
+		}
+		int c[num1], d[num2];
+		for(j = 0;j < n;j++)
+		{
+			if(j < i)
+			{
+				c[j] = m[j];
+			}
+			else if(j >= i && j < n-1)
+			{
+				d[j-i] = m[j];
+			}
+		}
+		CreateTree(p->lchild,c,a,num1);
+		CreateTree(p->rchild,d,b,num2);
+	}
+	else
+		p = NULL;
+}
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+void BiTree::CreateTree()
+{
+	CreateTree(root,m,s,num);
+}
 
-# Executables
-*.exe
-*.out
-*.app
+void BiTree::PreOrder(BiTNode *p)
+{
+	if(p)
+	{
+		if(!p->lchild && !p->rchild)
+		{
+			if(minweight > p->data)
+				minweight = p->data;
+		}
+		PreOrder(p->lchild);
+		PreOrder(p->rchild);
+	}
+}
+int main()
+{
+	int n;
+	while(scanf("%d",&n) != EOF)
+	{
+		int m[n], s[n];
+		for(int i=0;i<n;i++)
+			cin>>s[i];
+		for(int i=0;i<n;i++)
+			cin>>m[i];
+		BiTree tree(n,m,s);
+		tree.CreateTree();
+		tree.PreOrder(tree.root);
+		cout<<tree.minweight<<endl;
+	}
+	
+	return 0;
+}
